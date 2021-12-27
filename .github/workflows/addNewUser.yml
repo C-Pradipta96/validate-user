@@ -1,0 +1,27 @@
+name: Add User from Issues
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  create-invite:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get User Input
+        id: get_input
+        uses: ActionsDesk/parse-issue@master
+        with:
+          extract_email: '<p>Email of Requester:\s*(.*)</p>'
+      - name: Invite User
+        id: get-issue-data
+        uses: ActionsDesk/invite_user@release/v1
+        with:
+          CONFIG_PATH: ".github/config.json"
+          USER_ROLE: "direct_member"
+          EMAIL: ${{ steps.get_input.outputs.['email']}}
+      - name: Comment on Issue
+        uses: ActionsDesk/add-comment-action@v1
+        with:
+          message: ${{ steps.get-issue-data.message }}
+          status: ${{ steps.get-issue-data.stepStatus }}
